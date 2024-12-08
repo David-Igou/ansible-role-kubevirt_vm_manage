@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ item.name | default(vm_name ~ '-service-' ~ item.port) }}"
+  namespace: "{{ vm_namespace }}"
+  labels:
+    managed-by: ansible
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ item.port|int }}
+      targetPort: {{ item.target_port|int }}
+      protocol: "{{ item.protocol }}"
+  selector:
+    vm.kubevirt.io/name: "{{ vm_name }}"

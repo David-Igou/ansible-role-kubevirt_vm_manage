@@ -1,0 +1,14 @@
+architecture: amd64
+domain:
+  devices: {}
+  machine:
+    type: pc-q35-rhel9.4.0
+  resources: {}
+subdomain: headless
+volumes:
+- dataVolume:
+    name: "{{ vm_name }}-volume"
+  name: rootdisk
+- cloudInitNoCloud:
+    userDataBase64: "{{ vm_user_data | b64encode }}"
+  name: cloudinitdisk

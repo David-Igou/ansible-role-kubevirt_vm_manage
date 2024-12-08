@@ -1,0 +1,37 @@
+---
+# tasks file for kubevirt_vm_manage
+
+#TODO: Assert the sanity of our inputs, ie ensure manual cpu and memory aren't set while also setting instancetype..
+
+- debug:
+    msg:  "{{ lookup('ansible.builtin.template', './virtualmachine-spec.yml.j2') | from_yaml }}"
+
+- name: Enforce vm state
+  kubevirt.core.kubevirt_vm:
+    name: "{{ vm_name }}"
+    state: "{{ vm_state }}"
+    namespace: "{{ vm_namespace }}"
+    labels: "{{ vm_labels }}"
+    wait: true
+    instancetype:
+      kind: virtualmachineclusterinstancetype # How to make this dynamic?
+      name: "{{ vm_instancetype }}"
+    preference:
+      kind: virtualmachineclusterpreference
+      name: "{{ vm_virtualmachineclusterpreference }}"
+    data_volume_templates:
+      - "{{ lookup('ansible.builtin.template', './virtualmachine-data_volume_templates.yml.j2') | from_yaml }}" #This needs to be changed to support multiple datavolumetemplates
+    spec: "{{ lookup('ansible.builtin.template', './virtualmachine-spec.yml.j2') | from_yaml }}"
+  register: r_vm
+
+- name: Manage Services
+  loop: "{{ vm_services }}"
+  kubernetes.core.k8s:
+    state: "{{ vm_state }}"
+    definition: "{{ lookup('ansible.builtin.template', './service.yml.j2', jinja2_native=true)}}"
+
+- name: Manage routes
+  loop: "{{ vm_routes }}"
+  kubernetes.core.k8s:
+    state: "{{ vm_state }}"
+    definition: "{{ lookup('ansible.builtin.template', './route.yml.j2', jinja2_native=true)}}"

@@ -1,0 +1,10 @@
+metadata:
+  creationTimestamp: null
+  name: "{{ vm_name }}-volume"
+spec:
+  sourceRef:
+    kind: DataSource
+    name: "{{ vm_os_image_datasource }}"
+    namespace: openshift-virtualization-os-images
+  storage:
+    resources: {}
