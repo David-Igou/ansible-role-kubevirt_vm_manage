@@ -1,10 +1,20 @@
 api_version: route.openshift.io/v1
 kind: Route
 metadata:
-  name: "{{ item.name | default(vm_name ~ '-route-' ~ item.service_port) }}"
+  name: "{{ item.name }}"
   namespace: "{{ vm_namespace }}"
+{% if item.labels is defined %}
   labels:
-    managed-by: ansible
+{% for key, value in item.labels.items() %}
+    {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% if item.annotations is defined %}
+  annotations:
+{% for key, value in item.annotations.items() %}
+    {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
 spec:
   to:
     kind: Service
@@ -18,4 +28,18 @@ spec:
 {% endfor %}
 {% endif %}
   port:
-    targetPort: "{{ vm_services | selectattr('port', 'equalto', item.service_port) | map(attribute='target_port') | first }}"
+    targetPort: {{
+      item.service_port
+      | default(
+          (vm_services
+          | selectattr('name', 'equalto', item.service_name)
+          | map(attribute='ports') | first
+          | map(attribute='port') | list | first)
+          | default(
+              vm_services
+              | selectattr('name', 'equalto', item.service_name)
+              | map(attribute='ports') | first
+              | map(attribute='target_port') | list | first
+          )
+      )
+    }}

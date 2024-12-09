@@ -3,8 +3,12 @@
 
 #TODO: Assert the sanity of our inputs, ie ensure manual cpu and memory aren't set while also setting instancetype..
 
-- debug:
-    msg:  "{{ lookup('ansible.builtin.template', './virtualmachine-spec.yml.j2') | from_yaml }}"
+# - template:
+#     src: './service.yml.j2'
+#     dest: "{{ '/tmp/' + item.name + '-service.yml' }}"
+#   loop: "{{ vm_services }}"
+
+# - fail:
 
 - name: Enforce vm state
   kubevirt.core.kubevirt_vm:

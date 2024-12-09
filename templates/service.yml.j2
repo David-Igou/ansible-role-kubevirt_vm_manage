@@ -1,15 +1,37 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ item.name | default(vm_name ~ '-service-' ~ item.port) }}"
-  namespace: "{{ vm_namespace }}"
+  name: {{ item.name }}
+  namespace: {{ vm_namespace }}
   labels:
-    managed-by: ansible
+    vm.kubevirt.io/name: "{{ vm_name }}"
+{% if item.labels is defined %}
+{% for key, value in item.labels.items() %}
+    {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% if item.annotations is defined %}
+  annotations:
+{% for key, value in item.annotations.items() %}
+    {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
 spec:
-  clusterIP: None
+  type: {{ item.type }}
+{% if item.type == 'ClusterIP' and item.clusterIP is defined %}
+  clusterIP: {{ item.clusterIP }}
+{% endif %}
   ports:
-    - port: {{ item.port|int }}
-      targetPort: {{ item.target_port|int }}
-      protocol: "{{ item.protocol }}"
+{% for port in item.ports %}
+    - port: {{ port.port | default(port.target_port) }}
+{% if port.name is defined %}
+      name: {{ port.name }}
+{% endif %}
+      targetPort: {{ port.target_port }}
+      protocol: {{ port.protocol | default('TCP') }}
+{% if item.type == 'NodePort' and port.node_port is defined %}
+      nodePort: {{ port.node_port }}
+{% endif %}
+{% endfor %}
   selector:
     vm.kubevirt.io/name: "{{ vm_name }}"
