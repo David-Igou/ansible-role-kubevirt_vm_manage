@@ -29,8 +29,8 @@ spec:
 {% endif %}
       targetPort: {{ port.target_port }}
       protocol: {{ port.protocol | default('TCP') }}
-{% if item.type == 'NodePort' and port.node_port is defined %}
-      nodePort: {{ port.node_port }}
+{% if item.type == 'NodePort' and port.nodePort is defined %}
+      nodePort: {{ port.nodePort }}
 {% endif %}
 {% endfor %}
   selector:
