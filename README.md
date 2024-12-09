@@ -6,7 +6,7 @@ This role manages the state of a kubevirt vm and optionally configures networkin
 Requirements
 ------------
 
-This role can run on any Kubernetes distribution using kubevirt and includes support for Openshift
+Currently this role only caters to a default openshift-virtualization installation but will eventually expand support
 
 Role Variables
 --------------
@@ -21,7 +21,7 @@ Role Variables
 |`vm_labels`|dictionary|""|no|Labels to add to the virtualmachine object||
 |`vm_os_image_datasource`|string|"rhel9"|no|Datasource in `openshift-virtualization-os-images` namespace to use (wip) |"rhel9"|
 |`vm_virtualmachineclusterpreference`|string|"rhel.9"|no||"rhel.9"|
-|`vm_user_data`|string|`10`|no|Specify the timeout in seconds Ansible should use in requests to the Ansible Automation Platform host.||
+|`vm_user_data`|string|`10`|no|||
 |`vm_services`|string|"rhel.9"|no||"rhel.9"|
 |`vm_routes`|list|`[]`|no|List of routes to create for the virtual machine.||
 
