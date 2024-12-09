@@ -22,7 +22,7 @@ Role Variables
 |`vm_os_image_datasource`|string|"rhel9"|no|Datasource in `openshift-virtualization-os-images` namespace to use (wip) |"rhel9"|
 |`vm_virtualmachineclusterpreference`|string|"rhel.9"|no||"rhel.9"|
 |`vm_user_data`|string|`10`|no|||
-|`vm_services`|string|"rhel.9"|no||"rhel.9"|
+|`vm_services`|list|`[]`|no|List of services to create for the virtual machine||
 |`vm_routes`|list|`[]`|no|List of routes to create for the virtual machine.||
 
 ### `vm_services` Variables
@@ -66,7 +66,7 @@ Example Playbook
   vars:
     create_namespace: false
     set_stat: true
-    vm_state: "absent"
+    vm_state: "present"
     vm_labels:
       created_by: "ansible"
     vm_name: kubevirt-manage-testing
