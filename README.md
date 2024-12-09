@@ -64,16 +64,13 @@ Example Playbook
   hosts: sno
   gather_facts: false
   vars:
-    create_namespace: false
-    set_stat: true
+    vm_name: kubevirt-manage-testing
+    vm_namespace: "default"
     vm_state: "present"
     vm_labels:
       created_by: "ansible"
-    vm_name: kubevirt-manage-testing
     vm_instancetype: "u1.small"
-    vm_namespace: "default"
     vm_os_image_datasource: rhel9
-    vm_virtualmachineclusterpreference: "rhel.9"
 
     vm_services:
     - name: service-1
