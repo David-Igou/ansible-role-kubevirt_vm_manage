@@ -94,7 +94,7 @@ Example Playbook
           insecureEdgeTerminationPolicy: Redirect
           termination: passthrough
   roles:
-    - ansible-role-kubevirt_vm_manage
+    - David-Igou.kubevirt_vm_manage
 ```
 
 License
