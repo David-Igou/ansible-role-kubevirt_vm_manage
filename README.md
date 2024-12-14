@@ -70,7 +70,22 @@ Example Playbook
     vm_labels:
       created_by: "ansible"
     vm_instancetype: "u1.small"
-    vm_os_image_datasource: rhel9
+    vm_devices:
+      interfaces:
+        - bridge: {}
+          name: default
+    #     - bridge: {}
+    #       name: br1-network
+    vm_networks:
+    - name: default
+      pod: {}
+    # - multus:
+    #     networkName: br1-network
+    #   name: br1-network
+    vm_virtualmachineclusterpreference: "centos.stream9"
+    vm_data_volume:
+      sourceRef:
+        name: centos-stream9
 
     vm_services:
     - name: service-1
@@ -82,6 +97,11 @@ Example Playbook
       type: NodePort
       ports:
         - target_port: 9090
+    - name: headless
+      type: ClusterIP
+      clusterIP: None
+      ports:
+        - target_port: 5434
 
     vm_routes:
       - name: route-1
