@@ -20,7 +20,9 @@ spec:
     kind: Service
     name: "{{ item.service_name }}"
     weight: 100
-  host: "{{ item.hostname }}"
+{% if item.host is defined %}
+  host: {{ item.host }}
+{% endif %}
 {% if item.tls is defined %}
   tls:
 {% for key, value in item.tls.items() %}
