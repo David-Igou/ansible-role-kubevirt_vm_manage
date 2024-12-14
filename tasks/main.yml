@@ -4,9 +4,9 @@
 #TODO: Assert the sanity of our inputs, ie ensure manual cpu and memory aren't set while also setting instancetype..
 
 # - template:
-#     src: './service.yml.j2'
-#     dest: "{{ '/tmp/' + item.name + '-service.yml' }}"
-#   loop: "{{ vm_services }}"
+#     src: './virtualmachine-data_volume_templates.yml.j2'
+#     dest: "{{ '/tmp/dvt.yml' }}"
+# #   loop: "{{ vm_services }}"
 
 # - fail:
 
@@ -17,15 +17,30 @@
     namespace: "{{ vm_namespace }}"
     labels: "{{ vm_labels }}"
     wait: true
+    wait_timeout: "{{ vm_wait_timeout | default(300) }}"
     instancetype:
-      kind: virtualmachineclusterinstancetype # How to make this dynamic?
+      kind: virtualmachineclusterinstancetype
       name: "{{ vm_instancetype }}"
-    preference:
-      kind: virtualmachineclusterpreference
-      name: "{{ vm_virtualmachineclusterpreference }}"
+    preference: "{{ vm_preference | default(omit)}}"
     data_volume_templates:
       - "{{ lookup('ansible.builtin.template', './virtualmachine-data_volume_templates.yml.j2') | from_yaml }}" #This needs to be changed to support multiple datavolumetemplates
-    spec: "{{ lookup('ansible.builtin.template', './virtualmachine-spec.yml.j2') | from_yaml }}"
+    spec:
+      architecture: amd64
+      domain:
+        devices: "{{ vm_devices | default({}) }}"
+        machine:
+          type: pc-q35-rhel9.4.0
+        resources: "{{ vm_resource | default(omit) }}" #Ignore if instancetype is defined
+      subdomain: headless
+      networks: "{{ vm_networks | default(omit) }}"
+      volumes:
+      - dataVolume:
+          name: "{{ vm_name }}-volume"
+        name: rootdisk
+      - cloudInitNoCloud:
+          userDataBase64: "{{ vm_user_data | b64encode }}"
+        name: cloudinitdisk
+
   register: r_vm
 
 - name: Manage Services
