@@ -1,10 +1,130 @@
 metadata:
-  creationTimestamp: null
   name: "{{ vm_name }}-volume"
+  creationTimestamp: null
+{% if vm_data_volume.labels is defined %}
+  labels:
+{% for key, value in vm_data_volume.labels.items() %}
+    {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% if vm_data_volume.annotations is defined %}
+  annotations:
+{% for key, value in vm_data_volume.annotations.items() %}
+    {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
 spec:
+{% if vm_data_volume.source is defined and vm_data_volume.sourceRef is not defined %}
+  source:
+{% if vm_data_volume.source.pvc is defined %}
+    pvc:
+      name: "{{ vm_data_volume.source.pvc.name }}"
+      namespace: "{{ vm_data_volume.source.pvc.namespace }}"
+{% elif vm_data_volume.source.blank is defined %}
+    blank: {}
+{% elif vm_data_volume.source.http is defined %}
+    http:
+      url: "{{ vm_data_volume.source.http.url }}"
+{% elif vm_data_volume.source.s3 is defined %}
+    s3:
+      url: "{{ vm_data_volume.source.s3.url }}"
+{% elif vm_data_volume.source.registry is defined %}
+    registry:
+      url: "{{ vm_data_volume.source.registry.url }}"
+{% elif vm_data_volume.source.upload is defined %}
+    upload: {}
+{% endif %}
+{% endif %}
+{% if vm_data_volume.sourceRef is defined %}
   sourceRef:
-    kind: DataSource
-    name: "{{ vm_os_image_datasource }}"
-    namespace: openshift-virtualization-os-images
+    kind: "{{ vm_data_volume.sourceRef.kind | default("DataSource") }}"
+    name: "{{ vm_data_volume.sourceRef.name }}"
+    namespace: "{{ vm_data_volume.sourceRef.namespace | default("openshift-virtualization-os-images") }}"
+{% endif %}
+{% if vm_data_volume.pvc is defined and vm_data_volume.storage is not defined  %}
+  pvc:
+    accessModes:
+{% for mode in vm_data_volume.pvc.accessModes %}
+      - "{{ mode }}"
+{% endfor %}
+    resources:
+      requests:
+        storage: "{{ vm_data_volume.pvc.resources.requests.storage }}"
+{% if vm_data_volume.pvc.storageClassName is defined %}
+    storageClassName: "{{ vm_data_volume.pvc.storageClassName }}"
+{% endif %}
+{% if vm_data_volume.pvc.volumeMode is defined %}
+    volumeMode: "{{ vm_data_volume.pvc.volumeMode }}"
+{% endif %}
+{% endif %}
+
+{% if vm_data_volume.storage is defined %}
+  storage:
+{% if vm_data_volume.storage.accessModes is defined %}
+    accessModes:
+{% for mode in vm_data_volume.storage.accessModes %}
+      - "{{ mode }}"
+{% endfor %}
+{% endif %}
+{% if vm_data_volume.storage.dataSource is defined %}
+    dataSource:
+      apiGroup: "{{ vm_data_volume.storage.dataSource.apiGroup }}"
+      kind: "{{ vm_data_volume.storage.dataSource.kind }}"
+      name: "{{ vm_data_volume.storage.dataSource.name }}"
+{% endif %}
+{% if vm_data_volume.storage.dataSourceRef is defined %}
+    dataSourceRef:
+      apiGroup: "{{ vm_data_volume.storage.dataSourceRef.apiGroup }}"
+      kind: "{{ vm_data_volume.storage.dataSourceRef.kind }}"
+      name: "{{ vm_data_volume.storage.dataSourceRef.name }}"
+      namespace: "{{ vm_data_volume.storage.dataSourceRef.namespace }}"
+{% endif %}
+{% if vm_data_volume.storage.resources is defined %}
+    resources:
+{% if vm_data_volume.storage.resources.limits is defined %}
+      limits:
+{% for key, value in vm_data_volume.storage.resources.limits.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% if vm_data_volume.storage.resources.requests is defined %}
+      requests:
+{% for key, value in vm_data_volume.storage.resources.requests.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if vm_data_volume.storage.selector is defined %}
+    selector:
+{% if vm_data_volume.storage.selector.matchLabels is defined %}
+      matchLabels:
+{% for key, value in vm_data_volume.storage.selector.matchLabels.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% if vm_data_volume.storage.selector.matchExpressions is defined %}
+      matchExpressions:
+{% for expr in vm_data_volume.storage.selector.matchExpressions %}
+        - key: "{{ expr.key }}"
+          operator: "{{ expr.operator }}"
+          values:
+{% for value in expr.values %}
+            - "{{ value }}"
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if vm_data_volume.storage.storageClassName is defined %}
+    storageClassName: "{{ vm_data_volume.storage.storageClassName }}"
+{% endif %}
+{% if vm_data_volume.storage.volumeMode is defined %}
+    volumeMode: "{{ vm_data_volume.storage.volumeMode }}"
+{% endif %}
+{% if vm_data_volume.storage.volumeName is defined %}
+    volumeName: "{{ vm_data_volume.storage.volumeName }}"
+{% endif %}
+{% endif %}
+{% if vm_data_volume.storage is not defined and vm_data_volume.pvc is not defined  %}
   storage:
     resources: {}
+{% endif %}
